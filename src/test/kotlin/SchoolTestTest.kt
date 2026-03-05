@@ -66,9 +66,9 @@ class SchoolTestTest {
     fun getAverage_valueReturned() {
         val test = SchoolTest(24, 2.0, 10.0)
 
-        test.addMark(7.5)
-        test.addMark(8.0)
-        test.addMark(9.0)
+        test.addMark(1, 7.5)
+        test.addMark(2, 8.0)
+        test.addMark(3,9.0)
 
         val expected = (7.5 + 8.0 + 9.0)/3
 
@@ -79,9 +79,9 @@ class SchoolTestTest {
     fun getMaxMarkOccurrence_valueReturned() {
         val test = SchoolTest(24, 2.0, 10.0)
 
-        test.addMark(2.0)
-        test.addMark(8.0)
-        test.addMark(10.0)
+        test.addMark(1, 2.0)
+        test.addMark(2,8.0)
+        test.addMark(3, 10.0)
 
         assertEquals(1, test.maxMarkOccurrence)
     }
@@ -90,37 +90,23 @@ class SchoolTestTest {
     fun getMinMarkOccurrence_valueReturned() {
         val test = SchoolTest(24, 2.0, 10.0)
 
-        test.addMark(2.0)
-        test.addMark(8.0)
-        test.addMark(10.0)
+        test.addMark(1, 2.0)
+        test.addMark(2, 8.0)
+        test.addMark(3, 10.0)
 
         assertEquals(1, test.minMarkOccurrence)
     }
 
+    @Test
+    fun getAbsentStudents_valueReturned() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        test.addMark(16, 9.0)
+
+        assertEquals(23, test.absentStudents)
+    }
+
     /**** Setters ****/
-
-    @Test
-    fun setStudents_valueLowerThanPrevious_IllegalArgumentException() {
-        val test = SchoolTest(24, 2.0, 10.0)
-
-        assertThrows<IllegalArgumentException> { test.students = 20 }
-    }
-
-    @Test
-    fun setStudents_valueEqualToPrevious_IllegalArgumentException() {
-        val test = SchoolTest(24, 2.0, 10.0)
-
-        assertThrows<IllegalArgumentException> { test.students = 24 }
-    }
-
-    @Test
-    fun setStudents_valueHigherThanPrevious_valueSet() {
-        val test = SchoolTest(24, 2.0, 10.0)
-
-        test.students = 26
-
-        assertEquals(26, test.students)
-    }
 
     @Test
     fun setMinMark_valueHigherThanMaxMark_IllegalArgumentException() {
@@ -133,10 +119,10 @@ class SchoolTestTest {
     fun setMinMark_invalidMarksPresent_IllegalArgumentException() {
         val test = SchoolTest(24, 1.0, 10.0)
 
-        test.addMark(1.0)
-        test.addMark(1.5)
-        test.addMark(9.0)
-        test.addMark(7.0)
+        test.addMark(1, 1.0)
+        test.addMark(2, 1.5)
+        test.addMark(3, 9.0)
+        test.addMark(4, 7.0)
 
         assertThrows<IllegalArgumentException> { test.minMark = 2.0 }
     }
@@ -161,10 +147,10 @@ class SchoolTestTest {
     fun setMaxMark_invalidMarksPresent_IllegalArgumentException() {
         val test = SchoolTest(24, 1.0, 10.0)
 
-        test.addMark(1.0)
-        test.addMark(7.5)
-        test.addMark(10.0)
-        test.addMark(9.0)
+        test.addMark(value = 1.0)
+        test.addMark(value = 7.5)
+        test.addMark(value = 10.0)
+        test.addMark(value = 9.0)
 
         assertThrows<IllegalArgumentException> { test.maxMark = 9.0 }
     }
@@ -181,45 +167,65 @@ class SchoolTestTest {
     /**** Functions ****/
 
     @Test
-    fun addMark_valueLowerOfRange_IllegalArgumentException() {
+    fun addMark_valueLowerThanRange_IllegalArgumentException() {
         val test = SchoolTest(24, 2.0, 10.0)
 
-        assertThrows<IllegalArgumentException> { test.addMark(1.0) }
+        assertThrows<IllegalArgumentException> { test.addMark(value = 1.0) }
     }
 
     @Test
-    fun addMark_valueHigherOfRange_IllegalArgumentException() {
+    fun addMark_valueHigherThanRange_IllegalArgumentException() {
         val test = SchoolTest(24, 2.0, 10.0)
 
-        assertThrows<IllegalArgumentException> { test.addMark(11.0) }
+        assertThrows<IllegalArgumentException> { test.addMark(value = 11.0) }
+    }
+
+    @Test
+    fun addMark_identifierInputLowerThanRange_IllegalArgumentException() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        assertThrows<IllegalArgumentException> { test.addMark(0, 9.0)}
+    }
+
+    @Test
+    fun addMark_identifierInputHigherThanRange_IllegalArgumentException() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        assertThrows<IllegalArgumentException> { test.addMark(26, 9.0)}
     }
 
     @Test
     fun addMark_valueRequiresEditingStudents_studentsEdited() {
         val test = SchoolTest(1, 2.0, 10.0)
 
-        test.addMark(7.5)
-        test.addMark(9.0)
+        test.addMark(value = 9.0)
 
         assertEquals(2, test.students)
     }
 
     @Test
-    fun addMark_valueMeetsRequirements_markAdded() {
+    fun addMark_identifierNotPassed_valueGetsAddedAtTheEnd() {
         val test = SchoolTest(1, 2.0, 10.0)
 
-        test.addMark(7.5)
+        test.addMark(value = 7.5)
 
-        assertEquals(7.5, test.marks[test.marks.lastIndex])
+        assertEquals(7.5, test.getMark(2))
+    }
+
+    @Test
+    fun addMark_identifierPassed_markAddedAtCorrectPosition() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        test.addMark(5, 7.5)
+
+        assertEquals(7.5, test.getMark(5))
     }
 
     @Test
     fun editMark_identifierDoesNotExists_IllegalArgumentException() {
         val test = SchoolTest(1, 2.0, 10.0)
 
-        test.addMark(8.0)
-
-        assertThrows<IllegalArgumentException> { test.editMark(2, 9.0) }
+        assertThrows<IllegalArgumentException> { test.editMark(3, 9.0) }
     }
 
     @Test
@@ -233,38 +239,63 @@ class SchoolTestTest {
     fun editMark_valueLowerThanRange_IllegalArgumentException() {
         val test = SchoolTest(1, 2.0, 10.0)
 
-        test.addMark(8.0)
-
-        assertThrows<IllegalArgumentException> { test.editMark(0, 1.0) }
+        assertThrows<IllegalArgumentException> { test.editMark(1, 1.0) }
     }
 
     @Test
     fun editMark_valueHigherThanRange_IllegalArgumentException() {
         val test = SchoolTest(1, 2.0, 10.0)
 
-        test.addMark(8.0)
-
-        assertThrows<IllegalArgumentException> { test.editMark(0, 11.0) }
+        assertThrows<IllegalArgumentException> { test.editMark(1, 11.0) }
     }
 
     @Test
     fun editMark_allParametersMeetRequirements_markEdited() {
         val test = SchoolTest(1, 2.0, 10.0)
 
-        test.addMark(8.0)
-        test.editMark(0, 9.0)
+        test.editMark(1, 9.0)
 
-        assertEquals(9.0, test.marks[0])
+        assertEquals(9.0, test.getMark(1))
+    }
+
+    @Test
+    fun getMark_identifierInputLowerThanRange_IllegalArgumentException() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        assertThrows<IllegalArgumentException> {test.getMark(0)}
+    }
+
+    @Test
+    fun getMark_identifierInputHigherThanRange_IllegalArgumentException() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        assertThrows<IllegalArgumentException> {test.getMark(25)}
+    }
+
+    @Test
+    fun getMark_markIsNull_nullReturned() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        assertEquals(null, test.getMark(10))
+    }
+
+    @Test
+    fun getMark_markExists_markReturned() {
+        val test = SchoolTest(24, 2.0, 10.0)
+
+        test.addMark(10, 7.5)
+
+        assertEquals(7.5, test.getMark(10))
     }
 
     @Test
     fun occurrence_valueReturned() {
-        val test = SchoolTest(1, 2.0, 10.0)
+        val test = SchoolTest(24, 2.0, 10.0)
 
-        test.addMark(2.0)
-        test.addMark(9.0)
-        test.addMark(10.0)
-        test.addMark(9.0)
+        test.addMark(1, 2.0)
+        test.addMark(7, 9.0)
+        test.addMark(12, 10.0)
+        test.addMark(20, 9.0)
 
         assertEquals(2, test.occurrence(9.0))
     }

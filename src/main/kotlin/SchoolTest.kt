@@ -4,10 +4,10 @@ class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Doub
         require(maxMarkValue > minMarkValue) {"The maximum mark value must be higher than the minimum mark's one ($minMarkValue)."}
     }
 
-    val marks = mutableListOf<Double>()
+    private val marks = MutableList<Double?>(studentsValue) { null }
 
     var students:Int = studentsValue
-        set(value) {
+        private set(value) {
             require(value > field) {"You can only add more students."} //Since removing them would require removing marks from the list
 
             field = value
@@ -21,14 +21,15 @@ class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Doub
             var counter = 0
 
             for(mark in marks) {
-                if(mark !in value..maxMark) {
-                    invalidMarks.add(Pair(counter, mark))
+                when(mark) {
+                    null -> {}
+                    !in value..maxMark -> invalidMarks.add(Pair(counter, mark))
                 }
 
                 counter++
             }
 
-            require(invalidMarks.size == 0){"After your changes, there are some marks that will result invalid: $invalidMarks"}
+            require(invalidMarks.isEmpty()){"After your changes, there are some marks that will result invalid: $invalidMarks"}
 
             field = value
         }
@@ -41,14 +42,15 @@ class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Doub
             var counter = 0
 
             for(mark in marks) {
-                if(mark !in minMark..value) {
-                    invalidMarks.add(Pair(counter, mark))
+                when(mark) {
+                    null -> {}
+                    !in minMark..value -> invalidMarks.add(Pair(counter, mark))
                 }
 
                 counter++
             }
 
-            require(invalidMarks.size == 0){"After your changes, there are some marks that will result invalid: $invalidMarks"}
+            require(invalidMarks.isEmpty()){"After your changes, there are some marks that will result invalid: $invalidMarks"}
 
             field = value
         }
@@ -56,12 +58,19 @@ class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Doub
     val average:Double
         get() {
             var total = 0.0
+            var marksCount: Int = 0
 
             for(mark in marks) {
-                total += mark
+                when(mark) {
+                    null -> {}
+                    else -> {
+                        total += mark
+                        marksCount++
+                    }
+                }
             }
 
-            return total/marks.size
+            return total/marksCount
         }
 
     val maxMarkOccurrence: Int
@@ -75,25 +84,51 @@ class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Doub
             return occurrence(minMark)
         }
 
-    fun addMark(value:Double) {
-        require(value in minMark .. maxMark) {"The mark's value must be between $minMark and $maxMark"}
-
-        //If the program sees that the user is trying to add more marks than the number of students, it automatically changes the number of students
-        if(marks.size + 1 > students) {
-            students++
+    val absentStudents:Int
+        get() {
+            return occurrence(null)
         }
 
-        marks.add(value)
+    fun addMark(identifierInput:Int = marks.size + 1, value:Double) {
+        require(identifierInput in 1..marks.size + 1) {"The ID value does not lead to an existing mark"}
+        require(value in minMark .. maxMark) {"The mark's value must be between $minMark and $maxMark"}
+
+        val identifier = identifierInput - 1
+
+        when(identifier) {
+            marks.lastIndex + 1 -> {
+                //If the program sees that the user is trying to add more marks than the number of students, it automatically changes the number of students
+                if(marks.size + 1 > students) {
+                    students++
+                }
+
+                marks.add(value)
+            }
+
+            else -> {
+                marks[identifier] = value
+            }
+        }
     }
 
-    fun editMark(identifier:Int, value:Double) {
-        require(identifier in 0..marks.lastIndex) {"The ID value does not lead to an existing mark"}
+    fun editMark(identifierInput: Int, value:Double) {
+        require(identifierInput in 1..marks.size) {"The ID value does not lead to an existing mark"}
         require(value in minMark .. maxMark) {"The mark's value must be between $minMark and $maxMark"}
+
+        val identifier = identifierInput - 1
 
         marks[identifier] = value
     }
 
-    fun occurrence(value:Double):Int {
+    fun getMark(identifierInput: Int): Double? {
+        require(identifierInput in 1..marks.size) {"The ID value does not lead to an existing mark"}
+
+        val identifier = identifierInput - 1
+
+        return marks[identifier]
+    }
+
+    fun occurrence(value:Double?):Int {
         //No require statement because there could be some mark that was added before changing minimum and maximum marks values
         var counter = 0
 
