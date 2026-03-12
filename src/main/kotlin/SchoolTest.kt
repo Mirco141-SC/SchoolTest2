@@ -1,3 +1,5 @@
+import kotlin.math.floor
+
 class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Double = 10.0) {
     init {
         require(studentsValue > 0) {"The number of students must be higher than 0"}
@@ -132,12 +134,24 @@ class SchoolTest(studentsValue:Int, minMarkValue:Double = 1.0, maxMarkValue:Doub
         //No require statement because there could be some mark that was added before changing minimum and maximum marks values
         var counter = 0
 
-        for(mark in marks) {
-            if(mark == value) {
+        for (mark in marks) {
+            if (mark == value) {
                 counter += 1
             }
         }
 
         return counter
+    }
+
+    fun generalOccurrence2():List<Int> {
+        val result = MutableList((maxMark - minMark).toInt() + 1) { 0 }
+
+        for(mark in marks) {
+            if(mark != null) {
+                result[mark.toInt() - minMark.toInt()] += 1
+            }
+        }
+
+        return result
     }
 }

@@ -7,5 +7,5 @@ fun main() {
     test.addMark(3, 9.0)
     test.addMark(4, 7.0)
 
-    test.minMark = 2.0
+    println(test.generalOccurrence2())
 }
